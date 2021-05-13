@@ -1,5 +1,8 @@
 package com.security.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,9 +90,18 @@ public class LoginController {
 		
 		final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(authenticationRequest.getUsername());
 		
+		List<String> roles =  userDetails.getAuthorities().stream()
+				.map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+		
+		String responseUsername = userDetails.getUsername();
+		
 		final String jwt = jwtUtil.generateToken(userDetails);
 		
-		return ResponseEntity.ok(new AuthenticationResponse(jwt));
+		System.out.println("Authenticating user: " + responseUsername);
+		System.out.println("With roles: " + roles.toString());
+		
+		return ResponseEntity.ok(new AuthenticationResponse(jwt,responseUsername,roles));
 		
 	}
 
